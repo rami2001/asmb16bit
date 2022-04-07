@@ -5,18 +5,24 @@ namespace asmb
     void erreur()
     {
         // on signale une erreur en mettant le bit de poids faible a 1
-        g_instruction |= opcode::drapeau::ERR;
+        g_instruction |= codage::masque::ERR;
     }
 
-    char *nettoyerEspacesChaine(const char *instruction)
+    bool instructionEstValide()
     {
-        static char instructionPropre[9] = { 0 };
+        return !(g_instruction & 1);
+    }
+
+    char *chaineFormelle(const char *instruction)
+    {
+        static char instructionPropre[10] = { 0 };
+
         char *indiceChaineSource      { (char *) instruction };
         char *indiceChaineDestination { instructionPropre };
 
         while (*indiceChaineSource)
         {
-            if (*indiceChaineSource != ' ')
+            if (*indiceChaineSource != ' ' && *indiceChaineSource != '\t')
             {
                 *indiceChaineDestination = *indiceChaineSource;
                 ++indiceChaineDestination;
@@ -58,37 +64,37 @@ namespace asmb
         return -1;
     }
 
-    opcode::reg_t rdDepuisChaine(const char *instruction)
+    codage::opcode::idReg_t rdDepuisChaine(const char *instruction)
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[1]);
 
         if (numRegistre == -1)
             erreur();
         else
-            return numRegistre << 6;
+            return numRegistre << 7;
     }
 
-    opcode::reg_t rtDepuisChaine(const char *instruction)
+    codage::opcode::idReg_t rtDepuisChaine(const char *instruction)
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[6]);
 
         if (numRegistre == -1)
             erreur();
         else
-            return numRegistre << 3;
+            return numRegistre << 4;
     }
 
-    opcode::reg_t rsDepuisChaine(const char *instruction)
+    codage::opcode::idReg_t rsDepuisChaine(const char *instruction)
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[8]);
 
         if (numRegistre == -1)
             erreur();
         else
-            return numRegistre;
+            return numRegistre << 1;
     }
 
-    opcode_t opcodeDepuisChaine(const char *instruction)
+    codage::opcode_t opcodeDepuisChaine(const char *instruction)
     {
         /*
          * ici on recupere l'opcode de l'instruction,
@@ -101,56 +107,74 @@ namespace asmb
         char operation[3] = { '\0' };
         strncpy(operation, instruction + 2, 3);
 
-        if (!strcmp(operation, "add"))
-            return opcode::ADD;
-        if (!strcmp(operation, "dif"))
-            return opcode::DIF;
-        if (!strcmp(operation, "mul"))
-            return opcode::MUL;
-        if (!strcmp(operation, "div"))
-            return opcode::DIV;
-        if (!strcmp(operation, "mod"))
-            return opcode::MOD;
-
         if (!strcmp(operation, "etl"))
-            return opcode::ETL;
+            return codage::opcode::ETL;
         if (!strcmp(operation, "oul"))
-            return opcode::OUL;
+            return codage::opcode::OUL;
         if (!strcmp(operation, "xor"))
-            return opcode::XOR;
-        if (!strcmp(operation, "nsi"))
-            return opcode::NSI;
+            return codage::opcode::XOR;
+        if (!strcmp(operation, "oux"))
+            return codage::opcode::XOR;
         if (!strcmp(operation, "nsd"))
-            return opcode::NSD;
+            return codage::opcode::NSD;
+        if (!strcmp(operation, "nsi"))
+            return codage::opcode::NSI;
+
+        if (!strcmp(operation, "add"))
+            return codage::opcode::ADD;
+        if (!strcmp(operation, "dif"))
+            return codage::opcode::DIF;
+        if (!strcmp(operation, "mul"))
+            return codage::opcode::MUL;
+        if (!strcmp(operation, "div"))
+            return codage::opcode::DIV;
+        if (!strcmp(operation, "mod"))
+            return codage::opcode::MOD;
 
         if (!strcmp(operation, "cmm"))
-            return opcode::CMM;
+            return codage::opcode::CMM;
         if (!strcmp(operation, "com"))
-            return opcode::COM;
+            return codage::opcode::COM;
         if (!strcmp(operation, "rmm"))
-            return opcode::RMM;
+            return codage::opcode::RMM;
         if (!strcmp(operation, "rom"))
-            return opcode::ROM;
+            return codage::opcode::ROM;
+
+        if (!strcmp(operation, "cbg"))
+            return codage::opcode::CBG;
+        if (!strcmp(operation, "dgl"))
+            return codage::opcode::DGL;
+        if (!strcmp(operation, "ddl"))
+            return codage::opcode::DDL;
+        if (!strcmp(operation, "cbd"))
+            return codage::opcode::CBD;
+
+        if (!strcmp(operation, "all"))
+            return codage::opcode::ALL;
+        if (!strcmp(operation, "seg"))
+            return codage::opcode::SEG;
+        if (!strcmp(operation, "sis"))
+            return codage::opcode::SIS;
+        if (!strcmp(operation, "sie"))
+            return codage::opcode::SIE;
+
+        if (!strcmp(operation, "exe"))
+            return codage::opcode::EXE;
 
         erreur();
-        return opcode::NUL;
+        return codage::opcode::NUL;
     }
 
-    instruction_t instructionDepuisChaine(const char *instruction)
+    codage::instruction_t instructionDepuisChaine(const char *instruction)
     {
-        opcode_t op = opcodeDepuisChaine(instruction);
-        opcode::reg_t rd = rdDepuisChaine(instruction);
-        opcode::reg_t rt = rtDepuisChaine(instruction);
-        opcode::reg_t rs = rsDepuisChaine(instruction);
+        codage::opcode_t op        = opcodeDepuisChaine(instruction);
+        codage::opcode::idReg_t rd = rdDepuisChaine(instruction);
+        codage::opcode::idReg_t rt = rtDepuisChaine(instruction);
+        codage::opcode::idReg_t rs = rsDepuisChaine(instruction);
 
         g_instruction |= (op | rd | rt | rs);
 
         return g_instruction;
-    }
-
-    bool instructionValide()
-    {
-        return !(g_instruction & 1);
     }
 }
 

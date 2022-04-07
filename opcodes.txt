@@ -8,10 +8,8 @@ colonne : bits[12, 11, 10]
 001 etl oul xor nsd nsi
 010 add dif mul div mod
 011 cmm com rmm rom
-100
-101
+100 cbg dgl ddl                 cbd
+101 all seg sis sie
 110
-111
-
-registres :
+111                             exe
 

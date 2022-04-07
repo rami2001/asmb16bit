@@ -1,15 +1,17 @@
 #include "Cpu.h"
 
 #include <iostream>
-#include <bitset>
 
 int main(int argc, char const *argv[])
 {
-    char *ins = asmb::nettoyerEspacesChaine("   .3 add   .6  .7");
+    asmb::Cpu cpu;
 
-    std::bitset<16> instruction = asmb::instructionDepuisChaine(ins);
+    cpu.setReg(6, 20);
+    cpu.setReg(7, 1);
 
-    std::cout << instruction;
+    cpu.exec(" .3   etl .6      .7");
+
+    std::cout << cpu.getReg(3);
 
     return 0;
 }
