@@ -1,0 +1,17 @@
+opcodes :
+
+ligne   : bits[15, 14, 13]
+colonne : bits[12, 11, 10]
+
+    000 001 010 011 100 101 110 111
+000
+001 etl oul xor nsd nsi
+010 add dif mul div mod
+011 cmm com rmm rom
+100
+101
+110
+111
+
+registres :
+
