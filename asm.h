@@ -8,23 +8,19 @@
 
 namespace asmb
 {
-    static codage::instruction_t g_instruction { 0 };
+    constexpr codage::instruction_t ERR { 0 };
 
-    void erreur(void);
+    std::string chaine_formelle(const std::string &instruction);
 
-    std::string chaineFormelle(const std::string &instruction);
+    codage::opcode_t opcode_depuis_chaine(const std::string &instruction);
 
-    codage::opcode_t opcodeDepuisChaine(const std::string &instruction);
+    int num_registre_depuis_caractere(const char &caractere);
 
-    int numRegistreDepuisCaractere(const char caractere);
-
-    codage::opcode::idReg_t rdDepuisChaine(const std::string &instruction);
-    codage::opcode::idReg_t rtDepuisChaine(const std::string &instruction);
-    codage::opcode::idReg_t rsDepuisChaine(const std::string &instruction);
+    codage::opcode::id_reg_t rd_depuis_chaine(const std::string &instruction);
+    codage::opcode::id_reg_t rt_depuis_chaine(const std::string &instruction);
+    codage::opcode::id_reg_t rs_depuis_chaine(const std::string &instruction);
     
-    codage::instruction_t  instructionDepuisChaine(const std::string &instruction);
-
-    bool instructionEstValide();
+    codage::instruction_t  instruction_depuis_chaine(const std::string &instruction);
 }
 
 #endif

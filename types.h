@@ -5,8 +5,9 @@
 
 namespace asmb
 {   
-    typedef std::int16_t  mot_t;
-    typedef std::int16_t  reg_t;
+    typedef std::int16_t mot_t;
+    typedef std::int16_t reg_t;
+    typedef std::int8_t  octet_t;
 
     namespace codage
     {
@@ -15,7 +16,7 @@ namespace asmb
 
         namespace opcode
         {
-            typedef std::uint16_t idReg_t;
+            typedef std::uint16_t id_reg_t;
         }
     }
 }

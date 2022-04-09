@@ -7,33 +7,33 @@ namespace asmb
         for (int i = 0; i < 8; ++i)
             Cpu::m_registre[i] = 0;
 
-        Cpu::m_compteurOridnal     = 0x8000;
-        Cpu::m_registreInstruction = 0;
+        Cpu::m_compteur_oridnal     = 0x8000;
+        Cpu::m_registre_instruction = 0;
 
         for (std::size_t i = 0; i < 0xffff; ++i)
             m_memoire[i] = 0;
     }
 
-    reg_t Cpu::getReg(const int &num)
+    reg_t Cpu::get_reg(const int &index)
     {
-        return Cpu::m_registre[num];
+        return Cpu::m_registre[index];
     }
 
-    void Cpu::setReg(const int &index, const reg_t &val)
+    void Cpu::set_reg(const int &index, const mot_t &val)
     {
         Cpu::m_registre[index] = val;
     }
 
-    void Cpu::exec(codage::instruction_t instruction)
+    void Cpu::exec(const codage::instruction_t &instruction)
     {
-        if (instruction & codage::masque::ERR)
+        if (instruction & codage::masque::ERREUR)
             exit(EXIT_FAILURE);
 
-        codage::opcode_t opcode    { static_cast<codage::opcode_t>(instruction & codage::masque::OPCODE) };
+        codage::opcode_t opcode     { static_cast<codage::opcode_t>(instruction & codage::masque::OPCODE) };
 
-        codage::opcode::idReg_t rd { static_cast<codage::opcode::idReg_t>(instruction & codage::masque::RD) };
-        codage::opcode::idReg_t rt { static_cast<codage::opcode::idReg_t>(instruction & codage::masque::RT) };
-        codage::opcode::idReg_t rs { static_cast<codage::opcode::idReg_t>(instruction & codage::masque::RS) };
+        codage::opcode::id_reg_t rd { static_cast<codage::opcode::id_reg_t>(instruction & codage::masque::RD) };
+        codage::opcode::id_reg_t rt { static_cast<codage::opcode::id_reg_t>(instruction & codage::masque::RT) };
+        codage::opcode::id_reg_t rs { static_cast<codage::opcode::id_reg_t>(instruction & codage::masque::RS) };
 
         if (opcode == codage::opcode::EXE)
         {
@@ -41,9 +41,9 @@ namespace asmb
             return;
         }
 
-        int numRd = rd >> 7;
-        int numRt = rt >> 4;
-        int numRs = rs >> 1;
+        int num_rd = rd >> 7;
+        int num_rt = rt >> 4;
+        int num_rs = rs >> 1;
 
         constexpr codage::opcode_t EST_ARITHMETIQUE { 0x4000 };
 
@@ -57,19 +57,19 @@ namespace asmb
             switch (opcode)
             {
                 case codage::opcode::ADD :
-                    add(numRd, numRt, numRs);
+                    add(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::DIF :
-                    dif(numRd, numRt, numRs);
+                    dif(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::MUL :
-                    mul(numRd, numRt, numRs);
+                    mul(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::DIV :
-                    div(numRd, numRt, numRs);
+                    div(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::MOD :
-                    mod(numRd, numRt, numRs);
+                    mod(num_rd, num_rt, num_rs);
                     break;
             }
         }
@@ -80,24 +80,25 @@ namespace asmb
          * opcode des operations arithmetiques commence par (001xxx)
          * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0x2000
          */
+
         if ((opcode & 0xe000) == EST_LOGIQUE)
         {
             switch(opcode)
             {
                 case codage::opcode::ETL :
-                    etl(numRd, numRt, numRs);
+                    etl(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::OUL :
-                    oul(numRd, numRt, numRs);
+                    oul(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::XOR :
-                    oux(numRd, numRt, numRs);
+                    oux(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::NSI :
-                    nsi(numRd, numRt, numRs);
+                    nsi(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::NSD :
-                    nsd(numRd, numRt, numRs);
+                    nsd(num_rd, num_rt, num_rs);
                     break;
             }
         }
@@ -114,16 +115,70 @@ namespace asmb
             switch(opcode)
             {
                 case codage::opcode::CMM :
-                    cmm(numRd, numRt, numRs);
+                    cmm(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::COM :
-                    com(numRd, numRt, numRs);
+                    com(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::RMM :
-                    rmm(numRd, numRt, numRs);
+                    rmm(num_rd, num_rt, num_rs);
                     break;
                 case codage::opcode::ROM :
-                    rom(numRd, numRt, numRs);
+                    rom(num_rd, num_rt, num_rs);
+                    break;
+            }
+        }
+
+        constexpr codage::opcode_t EST_BITS { 0x8000 };
+
+        /*
+         * opcode des operations arithmetiques commence par (100xxx)
+         * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0x2000
+         */
+
+        if ((opcode & 0xe000) == EST_BITS)
+        {
+            switch(opcode)
+            {
+                case codage::opcode::CBG :
+                    cbg(num_rd, 0xff);
+                    break;
+                case codage::opcode::DGL :
+                    dgl(num_rd, num_rt, num_rs);
+                    break;
+                case codage::opcode::DDL :
+                    ddl(num_rd, num_rt, num_rs);
+                    break;
+                case codage::opcode::CBD :
+                    cbd(num_rd, 0xff);
+                    break;
+            }
+        }
+
+        constexpr codage::opcode_t EST_BRANCHEMENT { 0xa000 };
+
+        /*
+         * opcode des operations arithmetiques commence par (101xxx)
+         * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0xa000
+         */
+
+        if ((opcode & 0xe000) == EST_BRANCHEMENT)
+        {
+            switch(opcode)
+            {
+                case codage::opcode::ALL :
+                    all(num_rd, num_rt);
+                    break;
+                case codage::opcode::SEG :
+                    seg(num_rd, num_rt, num_rs);
+                    break;
+                case codage::opcode::SIS :
+                    sis(num_rd, num_rt, num_rs);
+                    break;
+                case codage::opcode::SIE :
+                    sie(num_rd, num_rt, num_rs);
+                    break;
+                default :
                     break;
             }
         }
@@ -131,9 +186,9 @@ namespace asmb
 
     void Cpu::exec(const std::string &instruction)
     {
-        codage::instruction_t instructionExecutable = instructionDepuisChaine(chaineFormelle(instruction));
+        codage::instruction_t instruction_executable = instruction_depuis_chaine(chaine_formelle(instruction));
 
-        exec(instructionExecutable);
+        exec(instruction_executable);
     }
 
     void Cpu::add(const int& rd, const int &rt, const int &rs)
@@ -232,15 +287,59 @@ namespace asmb
         Cpu::m_memoire[Cpu::m_registre[rt] + Cpu::m_registre[rs]] = temp;
     }
 
-    const char *Cpu::ecrireChaine(const int &longueur)
+    void Cpu::cbg(const int &rd, const mot_t &valeur)
     {
-        static char *chaine;
+        mot_t bits { valeur };
+        Cpu::m_registre[rd] = (Cpu::m_registre[rd] & 0x00ff ) | (bits << 2);
+    }
+
+    void Cpu::dgl(const int &rd, const int &rt, const int &rs)
+    {
+        Cpu::m_registre[rd] = Cpu::m_registre[rt] << (Cpu::m_registre[rs] & 0x000f);
+    }
+
+    void Cpu::ddl(const int &rd, const int &rt, const int &rs)
+    {
+        Cpu::m_registre[rd] = Cpu::m_registre[rt] >> (Cpu::m_registre[rs] & 0x000f);
+    }
+
+    void Cpu::cbd(const int &rd, const mot_t &valeur)
+    {
+        mot_t bits { valeur };
+        Cpu::m_registre[rd] = (Cpu::m_registre[rd] & 0xff00 ) | bits;
+    }
+
+    void Cpu::all(const int &rd, const int &rt)
+    {
+        Cpu::m_compteur_oridnal = Cpu::m_registre[rd] + Cpu::m_registre[rt];
+    }
+
+    void Cpu::seg(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] == Cpu::m_registre[rs])
+            Cpu::m_compteur_oridnal = Cpu::m_registre[rd];
+    }
+
+    void Cpu::sis(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] < Cpu::m_registre[rs])
+            Cpu::m_compteur_oridnal = Cpu::m_registre[rd];
+
+    }
+
+    void Cpu::sie(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] <= Cpu::m_registre[rs])
+            Cpu::m_compteur_oridnal = Cpu::m_registre[rd];
+    }
+
+    std::string Cpu::ecrire_chaine(const int &longueur)
+    {
+        std::string chaine = "\0";
 
         int i { 0 };
         for (i = 0; i < longueur; ++i)
-            *(chaine + i) = m_memoire[m_registre[5] + i];
-
-        *(chaine + i + 1) = { '\0' };
+            chaine += m_memoire[m_registre[5] + i];
 
         return chaine;
     }
@@ -251,18 +350,19 @@ namespace asmb
         switch (m_registre[7])
         {
             case 0 :
-                std::cout << "Programme execute avec succes";
+                std::cout << "Programme execute avec succes.\n";
                 break;
             case 1 :
                 std::cout << Cpu::m_registre[6] << '\n';
                 break;
             case 2 :
-                Cpu::ecrireChaine(Cpu::m_registre[6]);
+                Cpu::ecrire_chaine(Cpu::m_registre[6]);
                 break;
             case 3 :
                 std::cin >> Cpu::m_registre[6];
                 break;
             default :
+                std::cout << "Programme avorte.\n";
                 exit(EXIT_FAILURE);
                 break;
         }

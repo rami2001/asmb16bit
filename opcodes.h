@@ -55,9 +55,9 @@ namespace asmb
 
             // les opcodes des operations de branchement  (101xxx)
             inline constexpr opcode_t ALL { 0b1010'0000'0000'0000 };
-            inline constexpr opcode_t SEG { 0b1010'0000'0000'0000 };
-            inline constexpr opcode_t SIS { 0b1010'0000'0000'0000 };
-            inline constexpr opcode_t SIE { 0b1010'0000'0000'0000 };
+            inline constexpr opcode_t SEG { 0b1010'0100'0000'0000 };
+            inline constexpr opcode_t SIS { 0b1010'1000'0000'0000 };
+            inline constexpr opcode_t SIE { 0b1010'1100'0000'0000 };
 
             // l'opcode exe de l'appel systeme            (111111)
             inline constexpr opcode_t EXE { 0b1111'1100'0000'0000 };
@@ -74,7 +74,7 @@ namespace asmb
             inline constexpr instruction_t OPCODE { 0b1111'1100'0000'0000 };
 
             // le dernier bit designe une erreur
-            inline constexpr instruction_t ERR { 1 };
+            inline constexpr instruction_t ERREUR { 1 };
         }
     }
 }
