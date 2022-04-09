@@ -12,4 +12,3 @@ colonne : bits[12, 11, 10]
 101 all seg sis sie
 110
 111                             exe
-
