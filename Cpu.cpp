@@ -14,9 +14,9 @@ namespace asmb
             m_memoire[i] = 0;
     }
 
-    reg_t Cpu::getReg(const int &num)
+    reg_t Cpu::getReg(const int &index)
     {
-        return Cpu::m_registre[num];
+        return Cpu::m_registre[index];
     }
 
     void Cpu::setReg(const int &index, const reg_t &val)
@@ -80,6 +80,7 @@ namespace asmb
          * opcode des operations arithmetiques commence par (001xxx)
          * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0x2000
          */
+
         if ((opcode & 0xe000) == EST_LOGIQUE)
         {
             switch(opcode)
@@ -124,6 +125,60 @@ namespace asmb
                     break;
                 case codage::opcode::ROM :
                     rom(numRd, numRt, numRs);
+                    break;
+            }
+        }
+
+        constexpr codage::opcode_t EST_BITS { 0x8000 };
+
+        /*
+         * opcode des operations arithmetiques commence par (100xxx)
+         * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0x2000
+         */
+
+        if ((opcode & 0xe000) == EST_BITS)
+        {
+            switch(opcode)
+            {
+                case codage::opcode::CBG :
+                    cbg(numRd, 0xff);
+                    break;
+                case codage::opcode::DGL :
+                    dgl(numRd, numRt, numRs);
+                    break;
+                case codage::opcode::DDL :
+                    ddl(numRd, numRt, numRs);
+                    break;
+                case codage::opcode::CBD :
+                    cbd(numRd, 0xff);
+                    break;
+            }
+        }
+
+        constexpr codage::opcode_t EST_BRANCHEMENT { 0xa000 };
+
+        /*
+         * opcode des operations arithmetiques commence par (101xxx)
+         * 0xe000 permet de recuperer les trois premiers bits et les comparer avec 0xa000
+         */
+
+        if ((opcode & 0xe000) == EST_BRANCHEMENT)
+        {
+            switch(opcode)
+            {
+                case codage::opcode::ALL :
+                    all(numRd, numRt);
+                    break;
+                case codage::opcode::SEG :
+                    seg(numRd, numRt, numRs);
+                    break;
+                case codage::opcode::SIS :
+                    sis(numRd, numRt, numRs);
+                    break;
+                case codage::opcode::SIE :
+                    sie(numRd, numRt, numRs);
+                    break;
+                default :
                     break;
             }
         }
@@ -232,7 +287,53 @@ namespace asmb
         Cpu::m_memoire[Cpu::m_registre[rt] + Cpu::m_registre[rs]] = temp;
     }
 
-    const char *Cpu::ecrireChaine(const int &longueur)
+    void Cpu::cbg(const int &rd, const mot_t &valeur)
+    {
+        mot_t bits { valeur };
+        Cpu::m_registre[rd] = (Cpu::m_registre[rd] & 0x00ff ) | (bits << 2);
+    }
+
+    void Cpu::dgl(const int &rd, const int &rt, const int &rs)
+    {
+        Cpu::m_registre[rd] = Cpu::m_registre[rt] << (Cpu::m_registre[rs] & 0x000f);
+    }
+
+    void Cpu::ddl(const int &rd, const int &rt, const int &rs)
+    {
+        Cpu::m_registre[rd] = Cpu::m_registre[rt] >> (Cpu::m_registre[rs] & 0x000f);
+    }
+
+    void Cpu::cbd(const int &rd, const mot_t &valeur)
+    {
+        mot_t bits { valeur };
+        Cpu::m_registre[rd] = (Cpu::m_registre[rd] & 0xff00 ) | bits;
+    }
+
+    void Cpu::all(const int &rd, const int &rt)
+    {
+        Cpu::m_compteurOridnal = Cpu::m_registre[rd] + Cpu::m_registre[rt];
+    }
+
+    void Cpu::seg(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] == Cpu::m_registre[rs])
+            Cpu::m_compteurOridnal = Cpu::m_registre[rd];
+    }
+
+    void Cpu::sis(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] < Cpu::m_registre[rs])
+            Cpu::m_compteurOridnal = Cpu::m_registre[rd];
+
+    }
+
+    void Cpu::sie(const int &rd, const int &rt, const int &rs)
+    {
+        if (Cpu::m_registre[rt] <= Cpu::m_registre[rs])
+            Cpu::m_compteurOridnal = Cpu::m_registre[rd];
+    }
+
+    std::string Cpu::ecrireChaine(const int &longueur)
     {
         static char *chaine;
 
@@ -251,7 +352,7 @@ namespace asmb
         switch (m_registre[7])
         {
             case 0 :
-                std::cout << "Programme execute avec succes";
+                std::cout << "Programme execute avec succes.\n";
                 break;
             case 1 :
                 std::cout << Cpu::m_registre[6] << '\n';
@@ -263,6 +364,7 @@ namespace asmb
                 std::cin >> Cpu::m_registre[6];
                 break;
             default :
+                std::cout << "Programme avorte.\n";
                 exit(EXIT_FAILURE);
                 break;
         }

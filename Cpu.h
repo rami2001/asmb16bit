@@ -42,7 +42,17 @@ namespace asmb
             void rmm(const int& rd, const int &rt, const int &rs);
             void rom(const int& rd, const int &rt, const int &rs);
 
-            const char *ecrireChaine(const int& longueur);
+            void cbg(const int &rd, const mot_t &valeur);
+            void dgl(const int &rd, const int &rt, const int &rs);
+            void ddl(const int &rd, const int &rt, const int &rs);
+            void cbd(const int &rd, const mot_t &valeur);
+
+            void all(const int &rd, const int &rt);
+            void seg(const int &rd, const int &rt, const int &rs);
+            void sis(const int &rd, const int &rt, const int &rs);
+            void sie(const int &rd, const int &rt, const int &rs);
+
+            std::string ecrireChaine(const int& longueur);
             void exe();
     };
 }
