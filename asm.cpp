@@ -2,12 +2,22 @@
 
 namespace asmb
 {
+    void erreur()
+    {
+        // on signale une erreur en mettant le bit de poids faible a 1
+        g_instruction |= codage::masque::ERR;
+    }
+
+    bool instructionEstValide()
+    {
+        return !(g_instruction & 1);
+    }
+
     std::string chaineFormelle(const std::string &instruction)
     {
         std::string chaine = instruction;
-        
-        // pas la peine de se casser la tete, il suffit d'utiliser la bibliotheque standard
-        chaine.erase(std::remove_if(chaine.begin(), chaine.end(), ::isspace), chaine.end());
+
+        remove(chaine.begin(), chaine.end(), ' ');
 
         return chaine;
     }
@@ -38,15 +48,16 @@ namespace asmb
                 return 7;
         }
 
-        return ERR;
+        erreur();
+        return -1;
     }
 
     codage::opcode::idReg_t rdDepuisChaine(const std::string &instruction)
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[1]);
 
-        if (numRegistre == ERR)
-            return ERR;
+        if (numRegistre == -1)
+            erreur();
         else
             return numRegistre << 7;
     }
@@ -55,8 +66,8 @@ namespace asmb
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[6]);
 
-        if (numRegistre == ERR)
-            return ERR;
+        if (numRegistre == -1)
+            erreur();
         else
             return numRegistre << 4;
     }
@@ -65,8 +76,8 @@ namespace asmb
     {
         int numRegistre = numRegistreDepuisCaractere(instruction[8]);
 
-        if (numRegistre == ERR)
-            return ERR;
+        if (numRegistre == -1)
+            erreur();
         else
             return numRegistre << 1;
     }
@@ -140,12 +151,14 @@ namespace asmb
         if (operation == "exe")
             return codage::opcode::EXE;
 
-        return ERR;
+        erreur();
+        return codage::opcode::NUL;
     }
 
     codage::instruction_t instructionDepuisChaine(const std::string &instruction)
     {
-        codage::instruction_t codeMachine = { 0 };
+    	// reinitialiser valeur de l'instruction sauf le bit d'erreur
+        g_instruction &= 1;
     
         codage::opcode_t op = opcodeDepuisChaine(instruction);
 
@@ -156,12 +169,9 @@ namespace asmb
         codage::opcode::idReg_t rt = rtDepuisChaine(instruction);
         codage::opcode::idReg_t rs = rsDepuisChaine(instruction);
 
-        if (rd == ERR || rt == ERR || rs == ERR || op == ERR)
-            return codeMachine & codage::masque::ERREUR; // bit de poids faible directement a 1
+        g_instruction |= (op | rd | rt | rs);
 
-        codeMachine = op | rd | rt | rs;
-
-        return codeMachine;
+        return g_instruction;
     }
 }
 

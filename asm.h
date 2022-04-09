@@ -8,7 +8,9 @@
 
 namespace asmb
 {
-    constexpr codage::instruction_t ERR { 0 };
+    static codage::instruction_t g_instruction { 0 };
+
+    void erreur(void);
 
     std::string chaineFormelle(const std::string &instruction);
 
