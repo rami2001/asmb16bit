@@ -1,0 +1,62 @@
+instruction machine :
+
+opcode | rd | rt | rs | bit erreur
+6 bits, 3 bits, 3 bits, 3 bits, 1 bit
+
+sauf cbg et cbg :
+
+opcode | rd | immediat
+
+opcode 5 bits
+rd 3 bits
+immediat 8 bits
+
+-----------------------------------------------------------------------
+
+opcodes :
+
+ligne   : bits[15, 14, 13]
+colonne : bits[12, 11, 10]
+
+    000 001 010 011 100 101 110 111
+000
+001 etl oul xor nsd nsi
+010 add dif mul div mod
+011 cmm com rmm rom
+100 cbg dgl ddl                 cbd
+101 all seg sis sie
+110
+111                             exe
+
+-----------------------------------------------------------------------
+
+liste des possibilites (instructions) :
+
+qui commencent par un registre :
+	registre etl, oul, xor, nsd, nsi, add, dif, mul, div, mod, cmm, com, rmm, rom, dgl, ddl registre registre
+	registre seg, sis, sie, registre registre
+	registre all
+	registre cbg, cbd immediat
+	
+qui commencent par un label :
+	label seg, sis, sie registre registre
+	label all
+	label :
+
+appel systeme :
+	exe
+
+-----------------------------------------------------------------------
+
+grammaire hors contexte :
+
+en utilisant la notation conventionnelle des grammaires c-a-d
+<non terminal> ::= terminal | <non terminal>
+
+axiome : <axiome>
+
+<axiome>            ::= <label> <suite label> | <registre> <suite registre> | exe
+<suite label>       ::= : | all | <instruction label> <registre> <registre>
+<instruction label> ::= seg | sis | sie
+<suite registre>    ::= all | <instruction> <registre> <registre> | cbg <immediat> | cbd <immediat>
+<instruction>       ::= etl | oul | xor | nsd | nsi | add | dif | mul | div | mod | cmm | com | rmm | rom | dgl | ddl | seg | sis | sie

@@ -1,33 +1,12 @@
-#include "Cpu.h"
+#include "analyse_syntaxique.h"
 
-#include <iostream>
 #include <bitset>
 
 int main(int argc, char const *argv[])
 {
-    asmb::Cpu cpu;
+    std::queue<asmb::Token> file_tokens = asmb::analyse_lexicale("asmb.txt");
 
-    cpu.set_reg(1, 1);
-    cpu.set_reg(6, 64);
-    cpu.set_reg(7, 1); // reinitialise a 1 pour afficher registre 06
-
-    cpu.exec(".6 ddl .6 .1");
-    cpu.exec("exe");
-
-    cpu.exec(".6 ddl .6 .1");
-    cpu.exec("exe");
-
-    cpu.exec(".6 ddl .6 .1");
-    cpu.exec("exe");
-
-    cpu.exec(".6 ddl .6 .1");
-    cpu.exec("exe");
-
-    cpu.exec(".6 ddl .6 .1");
-    cpu.exec("exe");
-
-    cpu.set_reg(7, 0);
-    cpu.exec("exe");
+    asmb::reg_t* programme = asmb::analyse_syntaxique(file_tokens);
 
     return 0;
 }
